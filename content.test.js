@@ -2,7 +2,7 @@ const { JSDOM } = require("jsdom")
 const assert = require("node:assert/strict")
 const { describe, it, beforeEach } = require("node:test")
 
-const { unlimitBoostInputs, observeBoostInputs } = require("./content")
+const { unlimitBoostInputs, updateBorder, observeBoostInputs } = require("./content")
 
 function boostInput(maxlength = "16") {
   const input = document.createElement("input")
@@ -16,6 +16,11 @@ function otherInput(maxlength = "255") {
   input.setAttribute("name", "message[body]")
   if (maxlength) input.setAttribute("maxlength", maxlength)
   return input
+}
+
+function typeInto(input, text) {
+  input.value = text
+  input.dispatchEvent(new dom.window.Event("input", { bubbles: true }))
 }
 
 let dom
@@ -82,6 +87,59 @@ describe("unlimitBoostInputs", () => {
   })
 })
 
+describe("border feedback", () => {
+  function boostForm() {
+    const form = document.createElement("form")
+    const input = boostInput()
+    form.appendChild(input)
+    document.body.appendChild(form)
+    unlimitBoostInputs(document)
+    return { form, input }
+  }
+
+  it("has no border at or below 16 characters", () => {
+    const { form, input } = boostForm()
+
+    typeInto(input, "a".repeat(16))
+
+    assert.equal(form.style.border, "")
+  })
+
+  it("has a gold border above 16 characters", () => {
+    const { form, input } = boostForm()
+
+    typeInto(input, "a".repeat(17))
+
+    assert.equal(form.style.border, "3px solid gold")
+  })
+
+  it("has a gold border at 32 characters", () => {
+    const { form, input } = boostForm()
+
+    typeInto(input, "a".repeat(32))
+
+    assert.equal(form.style.border, "3px solid gold")
+  })
+
+  it("has a red border above 32 characters", () => {
+    const { form, input } = boostForm()
+
+    typeInto(input, "a".repeat(33))
+
+    assert.equal(form.style.border, "3px solid red")
+  })
+
+  it("clears the border when typing back below threshold", () => {
+    const { form, input } = boostForm()
+
+    typeInto(input, "a".repeat(20))
+    assert.equal(form.style.border, "3px solid gold")
+
+    typeInto(input, "a".repeat(10))
+    assert.equal(form.style.border, "")
+  })
+})
+
 describe("observeBoostInputs", () => {
   it("removes maxlength from existing boost inputs on the page", () => {
     const input = boostInput()
@@ -98,7 +156,6 @@ describe("observeBoostInputs", () => {
     const input = boostInput()
     document.body.appendChild(input)
 
-    // MutationObserver callbacks are microtasks
     await new Promise(resolve => setTimeout(resolve, 0))
 
     assert.equal(input.hasAttribute("maxlength"), false)

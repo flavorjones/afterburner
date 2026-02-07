@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Basecamp Boost Unlimiter",
+  "name": "Afterburner",
   "version": "1.0",
   "description": "Removes the 16-character limit on Basecamp boost messages",
   "content_scripts": [
