@@ -173,4 +173,35 @@ describe("observeBoostInputs", () => {
 
     assert.equal(input.hasAttribute("maxlength"), false)
   })
+
+  it("removes maxlength from boost inputs added inside an existing nested element (turbo-frame scenario)", async () => {
+    const turboFrame = document.createElement("div")
+    turboFrame.id = "new_boost_recording_123"
+    document.body.appendChild(turboFrame)
+
+    observeBoostInputs()
+
+    const form = document.createElement("form")
+    const input = boostInput()
+    form.appendChild(input)
+    turboFrame.appendChild(form)
+
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    assert.equal(input.hasAttribute("maxlength"), false)
+  })
+
+  it("removes maxlength after Turbo Drive replaces document.body", async () => {
+    observeBoostInputs()
+
+    // simulate Turbo Drive navigation: document.body.replaceWith(newBody)
+    const newBody = document.createElement("body")
+    const input = boostInput()
+    newBody.appendChild(input)
+    document.body.replaceWith(newBody)
+
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    assert.equal(input.hasAttribute("maxlength"), false)
+  })
 })

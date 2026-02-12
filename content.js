@@ -40,7 +40,7 @@ function observeBoostInputs() {
         }
       }
     }
-  }).observe(document.body, { childList: true, subtree: true })
+  }).observe(document.documentElement, { childList: true, subtree: true })
 }
 
 if (typeof module !== "undefined") {
