@@ -5,7 +5,7 @@
   "description": "Removes the 16-character limit on Basecamp boost messages",
   "content_scripts": [
     {
-      "matches": ["https://*.basecamp.com/*", "http://*.basecamp.localhost:*/*"],
+      "matches": ["https://*.basecamp.com/*", "http://*.basecamp.localhost:*/*", "https://*.bc4-beta.com/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
