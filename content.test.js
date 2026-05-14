@@ -30,6 +30,7 @@ beforeEach(() => {
   global.document = dom.window.document
   global.Node = dom.window.Node
   global.MutationObserver = dom.window.MutationObserver
+  global.getComputedStyle = dom.window.getComputedStyle
 })
 
 describe("unlimitBoostInputs", () => {
@@ -87,7 +88,7 @@ describe("unlimitBoostInputs", () => {
   })
 })
 
-describe("border feedback", () => {
+describe("border feedback on v4 markup", () => {
   function boostForm() {
     const form = document.createElement("form")
     const input = boostInput()
@@ -137,6 +138,50 @@ describe("border feedback", () => {
 
     typeInto(input, "a".repeat(10))
     assert.equal(form.style.border, "")
+  })
+})
+
+describe("border feedback on v5 markup", () => {
+  function v5BoostComposer() {
+    const composer = document.createElement("div")
+    composer.className = "boost boost--composer"
+    const form = document.createElement("form")
+    form.className = "boost__form"
+    form.style.display = "contents"
+    const input = boostInput()
+    form.appendChild(input)
+    composer.appendChild(form)
+    document.body.appendChild(composer)
+    unlimitBoostInputs(document)
+    return { composer, form, input }
+  }
+
+  it("puts the gold border on the visible composer, not the display:contents form", () => {
+    const { composer, form, input } = v5BoostComposer()
+
+    typeInto(input, "a".repeat(17))
+
+    assert.equal(composer.style.border, "3px solid gold")
+    assert.equal(form.style.border, "")
+  })
+
+  it("puts the red border on the visible composer above 32 characters", () => {
+    const { composer, form, input } = v5BoostComposer()
+
+    typeInto(input, "a".repeat(33))
+
+    assert.equal(composer.style.border, "3px solid red")
+    assert.equal(form.style.border, "")
+  })
+
+  it("clears the composer border when typing back below threshold", () => {
+    const { composer, input } = v5BoostComposer()
+
+    typeInto(input, "a".repeat(20))
+    assert.equal(composer.style.border, "3px solid gold")
+
+    typeInto(input, "a".repeat(10))
+    assert.equal(composer.style.border, "")
   })
 })
 

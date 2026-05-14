@@ -19,14 +19,25 @@ function updateBorder(event) {
   const form = event.target.closest("form")
   if (!form) return
 
+  const target = closestBox(form)
+  if (!target) return
+
   const length = event.target.value.length
   if (length > DANGER_THRESHOLD) {
-    form.style.border = `${BORDER_STYLE} red`
+    target.style.border = `${BORDER_STYLE} red`
   } else if (length > WARN_THRESHOLD) {
-    form.style.border = `${BORDER_STYLE} gold`
+    target.style.border = `${BORDER_STYLE} gold`
   } else {
-    form.style.border = ""
+    target.style.border = ""
   }
+}
+
+function closestBox(element) {
+  let current = element
+  while (current && getComputedStyle(current).display === "contents") {
+    current = current.parentElement
+  }
+  return current
 }
 
 function observeBoostInputs() {
