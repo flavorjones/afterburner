@@ -2,7 +2,7 @@
 
 A Chrome extension that removes the 16-character limit on Basecamp boost messages.
 
-![afterburner demo](./assets/afterburner.gif)
+![afterburner in action](./assets/afterburner_1.gif)
 
 ## Install
 
